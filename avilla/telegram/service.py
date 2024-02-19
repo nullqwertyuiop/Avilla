@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from launart import Launart, Service, any_completed
 
 if TYPE_CHECKING:
-    from avilla.telegram.connection.bot import TelegramBot
+    from avilla.telegram.connection.poll import TelegramLongPollingNetworking
     from avilla.telegram.protocol import TelegramProtocol
 
 
@@ -15,7 +15,7 @@ class TelegramService(Service):
     stages: set[str] = {"preparing", "blocking", "cleanup"}
 
     protocol: TelegramProtocol
-    instance_map: dict[int, TelegramBot]
+    instance_map: dict[int, TelegramLongPollingNetworking]
 
     def __init__(self, protocol: TelegramProtocol) -> None:
         super().__init__()
@@ -25,7 +25,7 @@ class TelegramService(Service):
     def has_instance(self, account_id: int):
         return account_id in self.instance_map
 
-    def get_instance(self, account_id: int) -> TelegramBot:
+    def get_instance(self, account_id: int) -> TelegramLongPollingNetworking:
         return self.instance_map[account_id]
 
     async def launch(self, manager: Launart):

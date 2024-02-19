@@ -23,12 +23,12 @@ _message_events = [
 
 
 def _message_event_type(name: str, raw: ...) -> str:
-    obj: dict[str, ...] = raw.to_dict()["message"]
+    obj: dict[str, ...] = raw["message"]
     for event in _message_events:
         if event in obj and obj[event] is not False:
             return f"event.{event}"
 
-    return f"{name}.{raw.message.chat.type}"
+    return f'{name}.{raw["message"]["chat"]["type"]}'
 
 
 _event_types: dict[str, Callable[[...], str]] = {
@@ -50,7 +50,7 @@ _event_types: dict[str, Callable[[...], str]] = {
 
 
 def reveal_event_type(raw: ...) -> str:
-    update_type = list(raw.to_dict().keys())[1]
+    update_type = list(raw.keys())[1]
     if update_type in _event_types:
         return _event_types[update_type](raw)
     return "non-implemented"

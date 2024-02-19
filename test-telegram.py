@@ -15,9 +15,9 @@ from avilla.standard.telegram.event import (
     GeneralForumTopicHidden,
     GeneralForumTopicUnhidden,
 )
-from avilla.telegram.protocol import TelegramBotConfig, TelegramProtocol
+from avilla.telegram.protocol import TelegramLongPollingConfig, TelegramProtocol
 
-config = TelegramBotConfig(os.environ["TELEGRAM_TOKEN"], reformat=False)
+config = TelegramLongPollingConfig(os.environ["TELEGRAM_TOKEN"], reformat=False)
 avilla = Avilla(message_cache_size=0)
 avilla.apply_protocols(TelegramProtocol().configure(config))
 
