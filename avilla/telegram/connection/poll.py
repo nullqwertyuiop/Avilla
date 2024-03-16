@@ -3,9 +3,10 @@ from __future__ import annotations
 import asyncio
 from typing import TYPE_CHECKING, cast
 
-import aiohttp
+from aiohttp import ClientSession
 from launart import Launart, Service, any_completed
 from loguru import logger
+from yarl import URL
 
 from avilla.core import Selector
 from avilla.core.account import AccountInfo
@@ -31,9 +32,7 @@ class TelegramLongPollingNetworking(TelegramNetworking, Service):
     protocol: TelegramProtocol
     config: TelegramLongPollingConfig
 
-    session: aiohttp.ClientSession
-
-    __available: bool
+    __alive: bool
     __offset: int | None
 
     def __init__(self, protocol: TelegramProtocol, config: TelegramLongPollingConfig):
@@ -42,8 +41,8 @@ class TelegramLongPollingNetworking(TelegramNetworking, Service):
         self.config = config
 
     @property
-    def available(self) -> bool:
-        return self.__available
+    def alive(self) -> bool:
+        return self.__alive
 
     @property
     def account_id(self):
@@ -95,15 +94,16 @@ class TelegramLongPollingNetworking(TelegramNetworking, Service):
                 logger.error(f"{self} failed to get updates: {err}")
 
     async def send(self, action: str, **kwargs) -> dict:
-        url = self.config.base_url / f"bot{self.config.token}" / action
-        async with self.session.post(url, **kwargs) as resp:
+        async with self.session.post(
+            self.config.base_url / f"bot{self.config.token}" / action, proxy=self.config.proxy, **kwargs
+        ) as resp:
             return await resp.json()
 
     async def wait_for_available(self):
         await self.status.wait_for_available()
 
     def get_staff_components(self):
-        return {"instance": self, "protocol": self.protocol, "avilla": self.protocol.avilla, "account": self.account}
+        return {"connection": self, "protocol": self.protocol, "avilla": self.protocol.avilla, "account": self.account}
 
     def __staff_generic__(self, element_type: dict, event_type: dict):
         ...
@@ -129,11 +129,11 @@ class TelegramLongPollingNetworking(TelegramNetworking, Service):
 
     async def launch(self, manager: Launart):
         async with self.stage("preparing"):
-            self.session = aiohttp.ClientSession()
+            self.session = ClientSession()
             self.__offset = None
             self.register()
             await self.staff.call_fn(PreferenceCapability.delete_webhook)
-            self.__available = True
+            self.__alive = True
 
         async with self.stage("blocking"):
             await any_completed(manager.status.wait_for_sigexit(), self.daemon())

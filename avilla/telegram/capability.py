@@ -15,7 +15,7 @@ class TelegramCapability((m := ApplicationCollector())._):
     async def event_callback(self, event_type: str, raw_event: dict) -> AvillaEvent | AvillaLifecycleEvent | None:
         ...
 
-    @Fn.complex({PredicateOverload(lambda _, raw: print(list(raw.keys())[-1])): ["raw_element"]})
+    @Fn.complex({PredicateOverload(lambda _, raw: list(raw.keys())[-1]): ["raw_element"]})
     async def deserialize_element(self, raw_element: dict) -> list[Element]:
         ...
 
@@ -23,21 +23,12 @@ class TelegramCapability((m := ApplicationCollector())._):
     async def serialize_element(self, element: Any) -> dict:
         ...
 
-    async def deserialize(self, elements: list[dict]):
-        _elements = []
-
-        for raw_element in elements:
-            _elements.extend(await self.deserialize_element(raw_element))
-
-        return MessageChain(_elements)
+    async def deserialize(self, raw: dict):
+        ignored_keys: set[str] = {"has_media_spoiler", "link_preview_options"}
+        return MessageChain(await self.deserialize_element({k: v for k, v in raw.items() if k not in ignored_keys}))
 
     async def serialize(self, message: MessageChain):
-        chain = []
-
-        for element in message:
-            chain.append(await self.serialize_element(element))
-
-        return chain
+        return [await self.serialize_element(element) for element in message]
 
     async def handle_event(self, event_type: str, payload: dict):
         maybe_event = await self.event_callback(event_type, payload)

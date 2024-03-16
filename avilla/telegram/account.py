@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 from avilla.core.account import BaseAccount
 
 if TYPE_CHECKING:
-    from avilla.telegram.connection.poll import TelegramLongPollingNetworking
+    from avilla.telegram.connection.poll import TelegramNetworking
     from avilla.telegram.protocol import TelegramProtocol
 
 
@@ -15,9 +15,9 @@ class TelegramAccount(BaseAccount):
     protocol: TelegramProtocol
 
     @property
-    def connection(self) -> TelegramLongPollingNetworking:
-        return self.protocol.service.get_instance(int(self.route["account"]))
+    def connection(self) -> TelegramNetworking:
+        return self.protocol.service.get_connection(int(self.route["account"]))
 
     @property
     def available(self) -> bool:
-        return self.connection.available
+        return self.connection.alive
