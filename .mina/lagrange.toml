@@ -1,0 +1,22 @@
+includes = ["avilla/lagrange"]
+raw_dependencies = [
+  "avilla-core >= 1.0.0a26",
+]
+
+[project]
+name = "avilla-lagrange"
+version = "0.1.0"
+authors = [
+  {name = "nullqwertyuiop", email = "null@member.fsf.org"}
+]
+dependencies = [
+  "lagrange-python>=0.1.1"
+]
+description = ""
+license = {text = "LGPL-2.1"}
+readme = "README.md"
+requires-python = ">=3.9"
+
+[project.urls]
+homepage = "https://github.com/GraiaProject/Avilla"
+repository = "https://github.com/GraiaProject/Avilla"
