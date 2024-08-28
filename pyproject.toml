@@ -29,7 +29,7 @@ requires = ["mina-build<0.6.0"]
 build-backend = "mina.backend"
 
 [tool.pdm.build]
-includes = ["avilla/"]
+includes = ["avilla/", "graia/ryanvk"]
 
 [tool.mina]
 enabled = true
