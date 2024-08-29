@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 from avilla.core.account import AccountStatus, BaseAccount
 from avilla.core.selector import Selector
-from avilla.lagrange.instance.client import LagrangeClient
+from avilla.lagrange.instance import LagrangeClient
 
 if TYPE_CHECKING:
     from avilla.lagrange.protocol import LagrangeProtocol

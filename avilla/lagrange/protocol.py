@@ -5,9 +5,9 @@ from typing import Literal
 
 from avilla.core.application import Avilla
 from avilla.core.protocol import BaseProtocol, ProtocolConfig
-from graia.ryanvk import merge, ref
+from avilla.lagrange.instance import LagrangeClient
+from graia.ryanvk import merge
 
-from .instance.client import LagrangeClient
 from .service import LagrangeService
 
 
@@ -16,9 +16,9 @@ class LagrangeConfig(ProtocolConfig):
     uin: int
     protocol: Literal["linux", "macos", "windows"] = "linux"
     sign_url: str | None = None
-    device_info_path = "./device.json"
-    sign_info_path = "./sig.bin"
-    qrcode_path = "./qrcode.png"
+    device_info_path: str = "./device.json"
+    sign_info_path: str = "./sig.bin"
+    qrcode_path: str = "./qrcode.png"
 
 
 def _import_performs():  # noqa: F401

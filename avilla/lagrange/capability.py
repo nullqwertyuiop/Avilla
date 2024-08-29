@@ -3,6 +3,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from graia.amnesia.message import Element, MessageChain
+from lagrange.client.events import BaseEvent
+from lagrange.client.message.elems import BaseElem
 
 from avilla.core.event import AvillaEvent
 from avilla.core.ryanvk.collector.application import ApplicationCollector
@@ -13,18 +15,17 @@ if TYPE_CHECKING:
 
 
 class LagrangeCapability((m := ApplicationCollector())._):
-    @Fn.complex({PredicateOverload(lambda _, raw: raw["type"]): ["raw_event"]})
-    async def event_callback(self, raw_event: dict) -> AvillaEvent | None: ...
+    @Fn.complex({TypeOverload(): ["raw_event"]})
+    async def event_callback(self, raw_event: BaseEvent) -> AvillaEvent | None: ...
 
     @Fn.complex({PredicateOverload(lambda _, raw: raw["type"]): ["raw_element"]})
-    async def deserialize_element(self, raw_element: dict) -> Element:  # type: ignore
+    async def deserialize_element(self, raw_element: BaseElem) -> Element:  # type: ignore
         ...
 
     @Fn.complex({TypeOverload(): ["element"]})
-    async def serialize_element(self, element: Any) -> dict:  # type: ignore
-        ...
+    async def serialize_element(self, element: Any) -> BaseElem: ...
 
-    async def deserialize_chain(self, chain: list[dict]):
+    async def deserialize_chain(self, chain: list[BaseElem]):
         elements = []
 
         for raw_element in chain:
@@ -40,6 +41,9 @@ class LagrangeCapability((m := ApplicationCollector())._):
 
         return elements
 
-    async def handle_event(self, event: dict):
-        # TODO: dispatch & handle event
-        pass
+    async def handle_event(self, event: BaseEvent):
+        maybe_event = await self.event_callback(event)
+
+        if maybe_event is not None:
+            self.avilla.event_record(maybe_event)
+            self.avilla.broadcast.postEvent(maybe_event)

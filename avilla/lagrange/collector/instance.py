@@ -6,7 +6,7 @@ from avilla.core.ryanvk.collector.base import AvillaBaseCollector
 from graia.ryanvk import Access, BasePerform
 
 if TYPE_CHECKING:
-    from avilla.lagrange.instance.client import LagrangeClient
+    from avilla.lagrange.instance import LagrangeClient
     from avilla.lagrange.protocol import LagrangeProtocol
 
 

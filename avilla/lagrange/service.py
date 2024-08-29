@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Set
 
 from launart import Launart, Service, any_completed
 
-from .instance.client import LagrangeClient
+from avilla.lagrange.instance import LagrangeClient
 
 if TYPE_CHECKING:
     from .protocol import LagrangeProtocol
