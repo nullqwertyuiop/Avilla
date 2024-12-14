@@ -8,19 +8,20 @@ from loguru import logger
 from avilla.core.context import Context
 from avilla.core.event import (
     DirectSessionCreated,
+    MemberCreated,
+    MemberDestroyed,
     MetadataModified,
     ModifyDetail,
     SceneCreated,
     SceneDestroyed,
-    MemberCreated,
-    MemberDestroyed,
 )
 from avilla.core.selector import Selector
 from avilla.onebot.v11.capability import OneBot11Capability
 from avilla.onebot.v11.collector.connection import ConnectionCollector
+from avilla.standard.core.account import AccountUnregistered
 from avilla.standard.core.activity import ActivityTrigged
-from avilla.standard.core.privilege import MuteInfo, Privilege
 from avilla.standard.core.file import FileReceived
+from avilla.standard.core.privilege import MuteInfo, Privilege
 from avilla.standard.qq.event import PocketLuckyKingNoticed
 from avilla.standard.qq.honor import Honor
 
@@ -321,3 +322,13 @@ class OneBot11EventNoticePerform((m := ConnectionCollector())._):
             context,
             group.file(raw_event["file"]["id"]),
         )
+
+    @m.entity(OneBot11Capability.event_callback, raw_event="notice.bot_offline")
+    async def bot_offline(self, raw_event: dict):
+        self_id = raw_event["self_id"]
+        account = self.connection.accounts.get(self_id)
+        if account is None:
+            logger.warning(f"Unknown account {self_id} kicked offline")
+            return
+
+        return AccountUnregistered(self.protocol.avilla, account)
