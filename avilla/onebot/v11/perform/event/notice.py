@@ -325,10 +325,4 @@ class OneBot11EventNoticePerform((m := ConnectionCollector())._):
 
     @m.entity(OneBot11Capability.event_callback, raw_event="notice.bot_offline")
     async def bot_offline(self, raw_event: dict):
-        self_id = raw_event["self_id"]
-        account = self.connection.accounts.get(self_id)
-        if account is None:
-            logger.warning(f"Unknown account {self_id} kicked offline")
-            return
-
-        return AccountUnregistered(self.protocol.avilla, account)
+        self.connection.close_signal.set()
